@@ -48,7 +48,7 @@
 4. **多进程受限**：训练时 `multiprocessing` 建管道被拒，`utils/dataloader` 的 `ThreadPool`/`Pool` 全部改为串行（`tools/train_serial.py`）。
 5. **运动模糊导致漏检**：猫在跑轮中高速奔跑，`yolov5s` 在部分帧完全漏检，改用 `yolov5m` 后置信度稳定在 0.8 左右。
 6. **指标偏乐观**：验证集标签与训练集同源（均由 YOLOv5m 生成），因此本表的 mAP 不代表对人工标注数据的真实泛化能力；样本仅单场景、单只猫，跨场景使用需重新标注与验证。
-7. **视频编码不兼容浏览器**：OpenCV 默认输出 `mp4v`（MPEG-4 Part 2，容器内配置盒为 `esds`），GitHub 与主流浏览器均无法播放。已重新编码为 H.264 Baseline（`avcC`，profile_idc=66，level 3.1），可在网页直接播放。
+7. **视频编码两次不可播放**：OpenCV 的 VideoWriter 输出 `mp4v`（MPEG-4 Part 2，配置盒 `esds`），浏览器不支持；改 `avc1` 后其内置 libopenh264 版本不匹配（`Incorrect library version loaded`），产出的 `avcC`/`mdat` 实际不成形，仍播不了。最终用 ffmpeg + libx264 重编码：High profile、yuv420p、`-movflags +faststart`（`moov` 前置），358 帧逐帧比对差异约 1.5，体积 3.14 MB，网页可直接播放。
 
 ## 6. 复现步骤
 
